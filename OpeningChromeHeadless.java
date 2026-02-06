@@ -1,5 +1,6 @@
-//package org.example;
+package org.example;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -14,20 +15,22 @@ public class OpeningChromeHeadless {
 
     WebDriver driver;
 
-    // This runs automatically BEFORE every @Test
     @BeforeMethod
     public void setup() {
+        // Automatically downloads and sets up the correct ChromeDriver version
+        WebDriverManager.chromedriver().setup();
+
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless"); // Run in background for Jenkins
+        options.addArguments("--headless"); // Required for Jenkins (no GUI)
         options.addArguments("--window-size=1920,1080");
         options.addArguments("--disable-gpu");
         options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
 
         driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
     }
 
-    // This is the actual Test Case
     @Test
     public void verifyGoogleTitle() {
         System.out.println("--- Starting Test: verifyGoogleTitle ---");
@@ -36,11 +39,10 @@ public class OpeningChromeHeadless {
         String title = driver.getTitle();
         System.out.println("Page Title Found: " + title);
 
-        // Assertion: If this fails, Jenkins marks the build as FAILED automatically
+        // Assertion: If this fails, Jenkins marks the build as FAILED
         Assert.assertTrue(title.contains("Google"), "Title did not contain 'Google'!");
     }
 
-    // This runs automatically AFTER every @Test
     @AfterMethod
     public void teardown() {
         if (driver != null) {
